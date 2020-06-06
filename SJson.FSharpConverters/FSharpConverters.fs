@@ -16,8 +16,8 @@ module private Utils =
         | _ -> sprintf "Invalid token type %A. Expecting %A." actual expected |> JsonException |> raise
 open Utils
 
-// a mutable cache for converters, based on the Type
-// to convert and the type of factory that is requesting the converter
+/// a mutable cache for converters, based on the Type
+/// to convert and the type of factory that is requesting the converter
 module private ConverterCache =
     
     let private converterCache = ConcurrentDictionary<Type, JsonConverter>()
@@ -41,8 +41,8 @@ module private ConverterCache =
             getConverter = getConverter
         }
      
-// type converter and factory for options
-// None -> null, Some 'a -> 'a     
+/// type converter and factory for options
+/// None -> null, Some 'a -> 'a     
 module Option =
 
     module private ConverterInternal =
@@ -68,13 +68,13 @@ module Option =
             | Some (x: 'a) -> JsonSerializer.Serialize(writer, x, options)
             | None -> JsonSerializer.Serialize(writer, Nullable<'a>(), options)
 
-    // a JsonConverter for options when the inner value is a ref type
+    /// a JsonConverter for options when the inner value is a ref type
     type RefTypeConverter<'a when 'a : null>() =
         inherit JsonConverter<'a option>()
         override __.Read(reader, _, options) = ConverterInternal.readRefType &reader options
         override __.Write(writer, value, options) = ConverterInternal.writeRefType writer value options
 
-    // a JsonConverter for options when the inner value is an option type
+    /// a JsonConverter for options when the inner value is an option type
     type private ValueTypeConverter<'a when 'a :> ValueType and 'a : struct and 'a : (new: Unit -> 'a)>() =
         inherit JsonConverter<'a option>()
         override __.Read(reader, _, options) = ConverterInternal.readValueType &reader options
@@ -104,8 +104,8 @@ module Option =
         override __.CanConvert x = converterCache.canConvert x
         override __.CreateConverter (typ, _) = converterCache.getConverter typ
 
-// type converter and factory for lists
-// Uses Seq<'a> as an intermediary
+/// type converter and factory for lists
+/// Uses Seq<'a> as an intermediary
 module List =
 
     type Converter<'a>() =
@@ -134,9 +134,9 @@ module List =
         override __.CanConvert x = converterCache.canConvert x
         override __.CreateConverter (typ, _) = converterCache.getConverter typ
 
-// type converter and factory for tuples
-// uses 8 different converter classes, with any extra tuple values being embedded inside the last value
-// e.g. (1, 2, 3, 4, 5, 6, 7, 8, 9) => {"1", "2", "3", "4", "5", "6", "7", {"8", "9"}}
+/// type converter and factory for tuples
+/// uses 8 different converter classes, with any extra tuple values being embedded inside the last value
+/// e.g. (1, 2, 3, 4, 5, 6, 7, 8, 9) => {"1", "2", "3", "4", "5", "6", "7", {"8", "9"}}
 module Tuple =
         
     module private ConverterInternal =
@@ -389,8 +389,8 @@ module Tuple =
         override __.CanConvert x = converterCache.canConvert x
         override __.CreateConverter (typ, _) = converterCache.getConverter typ
             
-// type converter and factory for union types
-// adds the union type values as an array to a property matching the union case name
+/// type converter and factory for union types
+/// adds the union type values as an array to a property matching the union case name
 module Union =
     
     module private ConverterInternal =
@@ -413,8 +413,8 @@ module Union =
                     
                 match reader.Read(), assertToken JsonTokenType.StartArray reader.TokenType with
                 | true, _ ->
-                    // Ref structs cannot be used in closures, so immutable code
-                    // is difficult to do here
+                    /// Ref structs cannot be used in closures, so immutable code
+                    /// is difficult to do here
                     let mutable i = 0
                     let fields = case.GetFields()
                     let objs = Array.create<obj> fields.Length null
@@ -477,7 +477,7 @@ module Union =
         override __.CanConvert x = converterCache.canConvert x
         override __.CreateConverter (typ, _) = converterCache.getConverter typ
 
-// type converter and factory for record types
+/// type converter and factory for record types
 module RecordType =
     
     module private ConverterInternal =
@@ -596,12 +596,12 @@ module RecordType =
         
         override __.CreateConverter (typ, _) = converterCache.getConverter typ
 
-// utils to create all factories
+/// utils to create all factories
 module Factories =
     
-    // build a list of JsonConverterFactories for Option, List, Tuple, Union and RecordType
-    // you can add these factories to a JsonSerializerOptions object
-    // all values immutable and can be re-used
+    /// build a list of JsonConverterFactories for Option, List, Tuple, Union and RecordType
+    /// you can add these factories to a JsonSerializerOptions object
+    /// all values immutable and can be re-used
     let Build() =
         [
             Option.Factory()
