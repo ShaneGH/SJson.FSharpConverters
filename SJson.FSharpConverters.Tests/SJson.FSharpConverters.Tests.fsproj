@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
-    <DefaultNamespace>SJson.FSharpConverters</DefaultNamespace>
+    <DefaultNamespace>SJson.FSharpConverters.Tests</DefaultNamespace>
     <GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
 

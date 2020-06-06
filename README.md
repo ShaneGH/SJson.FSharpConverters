@@ -14,7 +14,7 @@ Handles
 You can
 
 1. Just copy past the source code: https://github.com/ShaneGH/SJson.FSharpConverters/blob/master/SJson.FSharpConverters/FSharpConverters.fs
-1. Get the Nuget package: coming soon
+1. Get the Nuget package: `dotnet add package SJson.FSharpConverters`
 
 ## Use
 
